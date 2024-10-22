@@ -18,4 +18,4 @@ env/
 *.cache
 
 # Fichiers csv
-*.products_data.csv
+*.product_data.csv
