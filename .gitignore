@@ -1,0 +1,21 @@
+# Fichiers compilés Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environnements virtuels
+venv/
+env/
+.venv/
+.env/
+
+# Fichiers de configuration spécifiques à l'IDE
+.vscode/
+.idea/
+
+# Fichiers de logs et de cache
+*.log
+*.cache
+
+# Fichiers csv
+*.products_data.csv
