@@ -1,6 +1,7 @@
+import os
 import requests
-from bs4 import BeautifulSoup
 import csv
+from bs4 import BeautifulSoup
 import re
 
 def get_book_urls(category_url):
@@ -10,8 +11,8 @@ def get_book_urls(category_url):
         soup = BeautifulSoup(response.content, 'html.parser')
         for h3 in soup.find_all('h3'):
             book_urls.append('http://books.toscrape.com/catalogue' + h3.find('a')['href'][8:])
-            next_button = soup.find('li', class_='next')
-            category_url = 'http://books.toscrape.com/catalogue/' + next_button.find('a')['href'] if next_button else None
+        next_button = soup.find('li', class_='next')
+        category_url = 'http://books.toscrape.com/catalogue/' + next_button.find('a')['href'] if next_button else None
     return book_urls
 
 def get_book_data(book_url):
@@ -31,11 +32,22 @@ def get_book_data(book_url):
     image_url = image_url.replace('../../', 'http://books.toscrape.com/')
     return [product_page_url, upc, title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
 
+def download_image(image_url, title):
+    response = requests.get(image_url)
+    image_name = title.replace(' ', '_').replace('/', '_') + '.jpg'
+    with open(os.path.join('images', image_name), 'wb') as file:
+        file.write(response.content)
+
 category_url = 'https://books.toscrape.com/catalogue/category/books/horror_31/index.html'
 book_urls = get_book_urls(category_url)
+
+if not os.path.exists('images'):
+    os.makedirs('images')
 
 with open('category_books_data.csv', mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax', 'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating', 'image_url'])
     for book_url in book_urls:
-        writer.writerow(get_book_data(book_url))
+        book_data = get_book_data(book_url)
+        writer.writerow(book_data)
+        download_image(book_data[-1], book_data[2])
